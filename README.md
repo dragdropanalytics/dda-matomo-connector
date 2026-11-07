@@ -243,9 +243,9 @@ default. A custom HTTPS `update_manifest_url` can still be set directly in
 {
   "version": "0.5.0",
   "minimumPhpVersion": "8.1.0",
-  "downloadUrl": "https://github.com/floriangoetting/dda-matomo-connector/releases/download/v0.5.0/dda-matomo-connector-0.5.0.zip",
+  "downloadUrl": "https://github.com/dragdropanalytics/dda-matomo-connector/releases/download/v0.5.0/dda-matomo-connector-0.5.0.zip",
   "sha256": "hex-encoded-sha256",
-  "releaseNotesUrl": "https://github.com/floriangoetting/dda-matomo-connector/releases/tag/v0.5.0"
+  "releaseNotesUrl": "https://github.com/dragdropanalytics/dda-matomo-connector/releases/tag/v0.5.0"
 }
 ```
 
