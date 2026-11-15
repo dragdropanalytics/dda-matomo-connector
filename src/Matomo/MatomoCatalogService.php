@@ -46,10 +46,10 @@ final class MatomoCatalogService
         ]);
     }
 
-    /** @return list<array{id:int,title:string,mainUrl:string}> */
+    /** @return list<array{id:int,title:string,mainUrl:string,timezone:string}> */
     private function loadSites(PDO $pdo, MatomoSchema $schema): array
     {
-        $statement = $pdo->query('SELECT idsite, name, main_url FROM ' . $schema->quotedTable('site') . ' ORDER BY name ASC, idsite ASC');
+        $statement = $pdo->query('SELECT idsite, name, main_url, timezone FROM ' . $schema->quotedTable('site') . ' ORDER BY name ASC, idsite ASC');
         $rows = $statement === false ? [] : $statement->fetchAll();
 
         $sites = [];
@@ -63,6 +63,7 @@ final class MatomoCatalogService
                 'id' => $id,
                 'title' => $title !== '' ? $title : 'Website ' . $id,
                 'mainUrl' => trim((string) ($row['main_url'] ?? '')),
+                'timezone' => trim((string) ($row['timezone'] ?? '')),
             ];
         }
 
