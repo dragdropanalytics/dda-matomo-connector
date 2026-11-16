@@ -41,18 +41,18 @@ $service = new UpdateService(
     function (string $url) use (&$requestedUrls): string {
         $requestedUrls[] = $url;
         return json_encode([
-            'version' => '0.6.0',
+            'version' => '0.7.0',
             'minimumPhpVersion' => '8.1.0',
-            'downloadUrl' => 'https://github.com/example/connector/releases/download/v0.6.0/connector.zip',
+            'downloadUrl' => 'https://github.com/example/connector/releases/download/v0.7.0/connector.zip',
             'sha256' => str_repeat('a', 64),
-            'releaseNotesUrl' => 'https://github.com/example/connector/releases/tag/v0.6.0',
+            'releaseNotesUrl' => 'https://github.com/example/connector/releases/tag/v0.7.0',
         ], JSON_THROW_ON_ERROR);
     }
 );
 $status = $service->check();
 assertUpdateValue([Version::OFFICIAL_MANIFEST_URL], $requestedUrls, 'Official manifest must be used by default');
 assertUpdateValue(Version::CONNECTOR, $status['currentVersion'], 'Current version must be returned');
-assertUpdateValue('0.6.0', $status['latestVersion'], 'Latest version must come from the manifest');
+assertUpdateValue('0.7.0', $status['latestVersion'], 'Latest version must come from the manifest');
 assertUpdateValue(true, $status['updateAvailable'], 'Newer manifest version must be detected');
 assertUpdateValue('official', $status['manifestSource'], 'Official manifest source must be reported');
 assertUpdateValue(true, $status['selfUpdateEnabled'], 'Self-update setting must be reported');

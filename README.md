@@ -206,10 +206,20 @@ Query safety gates:
 - accepted plan type: `matomo.mysql.queryPlan.v1`
 - only `SELECT` statements
 - no semicolons, SQL comments, multi-statements, writes, DDL, `UNION`, or file operations
-- allowed tables only: the configured-prefix variants of `log_link_visit_action`, `log_visit`, `log_action`, `site`, plus `information_schema.COLUMNS`
+- allowed tables only: the configured-prefix variants of `log_link_visit_action`, `log_visit`, `log_action`, `site`, the optional feature tables `goal`, `log_conversion` and `custom_dimensions`, plus `information_schema.COLUMNS`
 - placeholder count must match bound parameters
 - row query must end with `LIMIT n OFFSET n`
 - `LIMIT` must not exceed `max_query_rows`
+
+## Goals, Ecommerce and Custom Dimensions
+
+Since version 0.6.0 the catalog also returns the goals and the active custom
+dimensions of every website, and queries may read `goal`, `log_conversion` and
+`custom_dimensions`. These tables are optional. An installation without them
+still passes the setup test and reports no goals or custom dimensions. The read
+user needs `SELECT` on these tables to use the features in Drag & Drop
+Analytics. `/v1/capabilities` reports `supportsGoals` and
+`supportsCustomDimensions`.
 
 ## Setup UI
 

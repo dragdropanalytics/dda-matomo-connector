@@ -51,4 +51,19 @@ assertThrows(
     'disallowed table'
 );
 
+// Optional feature tables are allowed in queries without being required.
+assertSameValue('analytics_log_conversion', $schema->table('log_conversion'), 'Conversion table must use configured prefix');
+assertSameValue(false, in_array('analytics_goal', $schema->requiredTables(), true), 'Goal table must stay optional');
+assertSameValue(true, in_array('analytics_custom_dimensions', $schema->allowedTables(), true), 'Custom dimension table must be allowed');
+assertSameValue('matomo_log_conversion', $schema->catalogTables()['analytics_log_conversion'], 'Conversion columns must be reported');
+$validateTables->invoke(
+    $queryService,
+    'SELECT COUNT(*) FROM `analytics_log_conversion` c JOIN `analytics_goal` g ON g.idgoal = c.idgoal',
+    'rows'
+);
+assertThrows(
+    fn () => $validateTables->invoke($queryService, 'SELECT * FROM `analytics_user`', 'rows'),
+    'disallowed table'
+);
+
 fwrite(STDOUT, "Matomo schema tests passed.\n");

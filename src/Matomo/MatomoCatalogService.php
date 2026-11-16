@@ -22,6 +22,8 @@ final class MatomoCatalogService
             'tablePrefix' => $schema->prefix(),
             'sites' => $this->loadSites($pdo, $schema),
             'availableColumns' => $this->loadAvailableColumns($pdo, $schema),
+            'goals' => $this->loadGoals($pdo, $schema),
+            'customDimensions' => $this->loadCustomDimensions($pdo, $schema),
         ];
     }
 
@@ -68,6 +70,81 @@ final class MatomoCatalogService
         }
 
         return $sites;
+    }
+
+    /**
+     * Goals belong to one website. An installation without the goals table
+     * reports none.
+     *
+     * @return list<array{siteId:int,id:int,name:string,allowMultiple:bool}>
+     */
+    private function loadGoals(PDO $pdo, MatomoSchema $schema): array
+    {
+        try {
+            $statement = $pdo->query(
+                'SELECT idsite, idgoal, name, allow_multiple FROM ' . $schema->quotedTable('goal')
+                . ' WHERE deleted = 0 ORDER BY idsite ASC, idgoal ASC'
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $goals = [];
+        foreach ($statement === false ? [] : $statement->fetchAll() as $row) {
+            $siteId = (int) ($row['idsite'] ?? 0);
+            $id = (int) ($row['idgoal'] ?? 0);
+            if ($siteId <= 0 || $id <= 0) {
+                continue;
+            }
+            $name = trim((string) ($row['name'] ?? ''));
+            $goals[] = [
+                'siteId' => $siteId,
+                'id' => $id,
+                'name' => $name !== '' ? $name : 'Goal ' . $id,
+                'allowMultiple' => (int) ($row['allow_multiple'] ?? 0) === 1,
+            ];
+        }
+
+        return $goals;
+    }
+
+    /**
+     * Active custom dimensions per website. The index names the value column
+     * custom_dimension_<index> of the visit or the action.
+     *
+     * @return list<array{siteId:int,id:int,index:int,scope:string,name:string}>
+     */
+    private function loadCustomDimensions(PDO $pdo, MatomoSchema $schema): array
+    {
+        try {
+            $statement = $pdo->query(
+                'SELECT idsite, idcustomdimension, `index`, scope, name FROM ' . $schema->quotedTable('custom_dimensions')
+                . ' WHERE active = 1 ORDER BY idsite ASC, scope ASC, `index` ASC'
+            );
+        } catch (\Throwable) {
+            return [];
+        }
+
+        $dimensions = [];
+        foreach ($statement === false ? [] : $statement->fetchAll() as $row) {
+            $siteId = (int) ($row['idsite'] ?? 0);
+            $index = (int) ($row['index'] ?? 0);
+            $scope = strtolower(trim((string) ($row['scope'] ?? '')));
+            if ($siteId <= 0 || $index <= 0 || !in_array($scope, ['visit', 'action'], true)) {
+                continue;
+            }
+            $id = (int) ($row['idcustomdimension'] ?? 0);
+            $name = trim((string) ($row['name'] ?? ''));
+            $dimensions[] = [
+                'siteId' => $siteId,
+                'id' => $id,
+                'index' => $index,
+                'scope' => $scope,
+                'name' => $name !== '' ? $name : 'Custom Dimension ' . $id,
+            ];
+        }
+
+        return $dimensions;
     }
 
     /** @return array<string, list<string>> */
