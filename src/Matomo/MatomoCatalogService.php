@@ -48,10 +48,10 @@ final class MatomoCatalogService
         ]);
     }
 
-    /** @return list<array{id:int,title:string,mainUrl:string,timezone:string}> */
+    /** @return list<array{id:int,title:string,mainUrl:string,timezone:string,currency:string}> */
     private function loadSites(PDO $pdo, MatomoSchema $schema): array
     {
-        $statement = $pdo->query('SELECT idsite, name, main_url, timezone FROM ' . $schema->quotedTable('site') . ' ORDER BY name ASC, idsite ASC');
+        $statement = $pdo->query('SELECT idsite, name, main_url, timezone, currency FROM ' . $schema->quotedTable('site') . ' ORDER BY name ASC, idsite ASC');
         $rows = $statement === false ? [] : $statement->fetchAll();
 
         $sites = [];
@@ -66,6 +66,8 @@ final class MatomoCatalogService
                 'title' => $title !== '' ? $title : 'Website ' . $id,
                 'mainUrl' => trim((string) ($row['main_url'] ?? '')),
                 'timezone' => trim((string) ($row['timezone'] ?? '')),
+                // ISO 4217 code that Matomo uses for goal and ecommerce revenue of this website.
+                'currency' => strtoupper(trim((string) ($row['currency'] ?? ''))),
             ];
         }
 
