@@ -82,6 +82,8 @@ try {
             'supportsCatalog' => true,
             'supportsQuery' => true,
             'supportsSites' => true,
+            'supportsGoals' => true,
+            'supportsCustomDimensions' => true,
             'supportsUpdateCheck' => true,
             'supportsSelfUpdate' => $config->bool('allow_self_update', false),
             'supportsSqlTemplates' => false,

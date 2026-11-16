@@ -17,6 +17,18 @@ final class MatomoSchema
         'site',
     ];
 
+    /**
+     * Tables of optional Matomo features. A website without goals, ecommerce or
+     * custom dimensions may lack them, so they are never required.
+     *
+     * @var list<string>
+     */
+    private const OPTIONAL_TABLE_SUFFIXES = [
+        'goal',
+        'log_conversion',
+        'custom_dimensions',
+    ];
+
     private const MAX_PREFIX_LENGTH = 43;
 
     public function __construct(private string $tablePrefix)
@@ -53,7 +65,7 @@ final class MatomoSchema
 
     public function table(string $suffix): string
     {
-        if (!in_array($suffix, self::REQUIRED_TABLE_SUFFIXES, true)) {
+        if (!$this->isKnownSuffix($suffix)) {
             throw new \InvalidArgumentException('Unsupported Matomo table suffix.');
         }
 
@@ -62,7 +74,7 @@ final class MatomoSchema
 
     public function canonicalTable(string $suffix): string
     {
-        if (!in_array($suffix, self::REQUIRED_TABLE_SUFFIXES, true)) {
+        if (!$this->isKnownSuffix($suffix)) {
             throw new \InvalidArgumentException('Unsupported Matomo table suffix.');
         }
 
@@ -75,11 +87,28 @@ final class MatomoSchema
         return array_map(fn (string $suffix): string => $this->table($suffix), self::REQUIRED_TABLE_SUFFIXES);
     }
 
-    /** @return array<string, string> */
+    private function isKnownSuffix(string $suffix): bool
+    {
+        return in_array($suffix, self::REQUIRED_TABLE_SUFFIXES, true)
+            || in_array($suffix, self::OPTIONAL_TABLE_SUFFIXES, true);
+    }
+
+    /** @return list<string> */
+    public function optionalTables(): array
+    {
+        return array_map(fn (string $suffix): string => $this->table($suffix), self::OPTIONAL_TABLE_SUFFIXES);
+    }
+
+    /**
+     * Tables whose columns the catalog reports. A missing optional table simply
+     * has no columns there.
+     *
+     * @return array<string, string>
+     */
     public function catalogTables(): array
     {
         $tables = [];
-        foreach (['log_link_visit_action', 'log_visit', 'log_action'] as $suffix) {
+        foreach (['log_link_visit_action', 'log_visit', 'log_action', 'log_conversion'] as $suffix) {
             $tables[$this->table($suffix)] = $this->canonicalTable($suffix);
         }
         return $tables;
@@ -88,7 +117,7 @@ final class MatomoSchema
     /** @return list<string> */
     public function allowedTables(): array
     {
-        return [...$this->requiredTables(), 'information_schema.columns'];
+        return [...$this->requiredTables(), ...$this->optionalTables(), 'information_schema.columns'];
     }
 
     public function quotedTable(string $suffix): string
