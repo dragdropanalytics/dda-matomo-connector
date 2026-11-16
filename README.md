@@ -221,6 +221,9 @@ user needs `SELECT` on these tables to use the features in Drag & Drop
 Analytics. `/v1/capabilities` reports `supportsGoals` and
 `supportsCustomDimensions`.
 
+Since version 0.6.1 every website in the catalog also carries its `currency`,
+so revenue is shown in the currency configured in Matomo.
+
 ## Setup UI
 
 When `config.php` is missing, `GET /setup` shows a browser-based setup wizard.
