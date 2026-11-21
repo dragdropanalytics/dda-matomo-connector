@@ -1,0 +1,27 @@
+version: 2
+
+updates:
+  # PHP base image of the container. Image security fixes only arrive as new
+  # tags and Dependabot raises no security alerts for images, so check daily.
+  # Shared-hosting installs use the PHP of their hoster and are not affected.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: daily
+    commit-message:
+      prefix: chore
+    ignore:
+      # A new PHP minor (for example 8.6) needs a deliberate compatibility check.
+      - dependency-name: php
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+
+  # Actions referenced in .github/workflows.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: chore
+    groups:
+      github-actions:
+        patterns: ["*"]
