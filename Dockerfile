@@ -1,4 +1,4 @@
-FROM php:8.5.12-apache-bookworm
+FROM php:8.5.13-apache-bookworm
 
 RUN docker-php-ext-install pdo_mysql \
   && a2enmod rewrite \
